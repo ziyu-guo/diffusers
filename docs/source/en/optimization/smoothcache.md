@@ -2,9 +2,9 @@
 
 [SmoothCache](https://huggingface.co/papers/2411.10510) is a training-free acceleration technique designed to enhance the performance of Diffusion Transformer (DiT) pipelines. 
 It reduces the need for computationally expensive operations via caching schemes based on layer-wise error analysis. 
-SmoothCache applies to different models and modalities. 
-It also offers plug-and-play integration with [Diffusers DiT Pipeline](https://github.com/huggingface/diffusers/blob/main/src/diffusers/pipelines/dit/pipeline_dit.py), 
-
+SmoothCache offers fine-grained control over individual components. For instance, you can selectively enable caching for cross-attention or self-attention blocks based on 
+their specific error distribution. This makes SmoothCache flexible across different pipelines and modalities. 
+It also provides seamless, plug-and-play integration with [Diffusers DiT Pipeline](https://github.com/huggingface/diffusers/blob/main/src/diffusers/pipelines/dit/pipeline_dit.py).
 
 
 ## Quick Start
@@ -16,7 +16,7 @@ pip install dit-smoothcache
 
 ### Usage - Inference
 
-Inspired by [DeepCache](https://raw.githubusercontent.com/horseee/DeepCache), we implemented zero-intrusion helper class to control the caching behavior of the pipeline.
+We implemented zero-intrusion helper class to control the caching behavior of the pipeline.
 
 Generally, only a few additional lines needs to be added to the sampler scripts to enable/disable SmoothCache:
 
@@ -105,9 +105,8 @@ Together, they balance performance gain from caching with the output quality.
 
 ## Visualization
 
-### 256x256 Image Generation Task
-
-![Mosaic Image](https://github.com/Roblox/SmoothCache/blob/main/assets/dit-mosaic.png)
+![Mosaic Image](https://github.com/Roblox/SmoothCache/raw/main/assets/TeaserFigureFlat.png)
+**Accelerating Diffusion Transformer inference across multiple modalities with 50 DDIM Steps on DiT-XL-256x256, 100 DPM-Solver++(3M) SDE steps for a 10s audio sample (spectrogram shown) on Stable Audio Open, 30 Rectified Flow steps on Open-Sora 480p 2s videos**
 
 
 ## Benchmark
@@ -119,15 +118,19 @@ Together, they balance performance gain from caching with the output quality.
 | Schedule       | Steps | FID (↓)     | sFID (↓)    | IS (↑)       | TMACs   | Latency (s) |
 |----------------|-------|------------:|------------:|------------:|--------:|------------:|
 | **L2C**        | 50    | 2.27 ± 0.04 | 4.23 ± 0.02 | 245.8 ± 0.7 | 278.71  | 6.85        |
-| No Cache       | 50    | 2.50 ± 0.04 | 4.35 ± 0.03 | 244.6 ± 0.9 | 282.57  | 8.08        |
-| FORA (r=2)     | 50    | 2.47 ± 0.04 | 4.29 ± 0.03 | 246.1 ± 1.0 | 281.52  | 7.88        |
-| Ours (a=0.08)  | 50    | 2.31 ± 0.03 | 4.25 ± 0.02 | 246.3 ± 1.1 | 281.69  | 7.75        |
 |                |       |             |             |             |         |             |
-| No Cache       | 70    | 2.44 ± 0.04 | 4.39 ± 0.03 | 243.7 ± 1.2 | 392.65  | 10.84       |
-| FORA (r=2)     | 70    | 2.43 ± 0.05 | 4.36 ± 0.03 | 243.9 ± 1.1 | 391.57  | 10.47       |
-| Ours (a=0.08)  | 70    | 2.34 ± 0.05 | 4.28 ± 0.03 | 245.0 ± 1.2 | 391.89  | 10.24       |
+| No Cache       | 50    | 2.28 ± 0.03 | 4.30 ± 0.02 | 241.6 ± 1.1 | 365.59  | 8.34        |
+| FORA (n=2)     | 50    | 2.65 ± 0.04 | 4.69 ± 0.03 | 238.5 ± 1.1 | 190.26  | 5.17        |
+| FORA (n=3)     | 50    | 3.31 ± 0.05 | 5.71 ± 0.06 | 230.1 ± 1.3 | 131.81  | 4.12        |
+| Ours (a=0.08)  | 50    | 2.28 ± 0.03 | 4.29 ± 0.02 | 241.8 ± 1.1 | 336.37  | 7.62        |
+| Ours (a=0.18)  | 50    | 2.65 ± 0.04 | 4.65 ± 0.03 | 238.7 ± 1.1 | 175.65  | 4.85        |
+| Ours (a=0.22)  | 50    | 3.14 ± 0.05 | 5.19 ± 0.04 | 231.7 ± 1.0 | 131.81  | 4.11        |
 |                |       |             |             |             |         |             |
-| No Cache       | 30    | 2.70 ± 0.04 | 4.47 ± 0.02 | 242.6 ± 0.7 | 169.53  | 5.12        |
-| FORA (r=2)     | 30    | 2.64 ± 0.04 | 4.42 ± 0.03 | 243.2 ± 0.8 | 168.81  | 4.91        |
-| Ours (a=0.08)  | 30    | 2.51 ± 0.04 | 4.38 ± 0.02 | 244.4 ± 1.0 | 168.95  | 4.83        |
+| No Cache       | 30    | 2.66 ± 0.04 | 4.42 ± 0.03 | 234.6 ± 1.0 | 219.36  | 4.88       |
+| FORA (r=2)     | 30    | 3.79 ± 0.04 | 5.72 ± 0.05 | 222.2 ± 1.2 | 117.08  | 3.13       |
+| Ours (a=0.08)  | 30    | 3.72 ± 0.04 | 5.51 ± 0.05 | 222.9 ± 1.0 | 117.08  | 3.13       |
+|                |       |             |             |             |         |             |
+| No Cache       | 70    | 2.17 ± 0.02 | 4.33 ± 0.02 | 242.3 ± 1.6 | 511.83  | 11.47        |
+| FORA (r=2)     | 70    | 2.36 ± 0.02 | 4.46 ± 0.03 | 242.2 ± 1.3 | 263.43  | 7.15        |
+| Ours (a=0.08)  | 70    | 2.37 ± 0.02 | 4.29 ± 0.03 | 242.6 ± 1.5 | 248.8  | 6.9        |
 
