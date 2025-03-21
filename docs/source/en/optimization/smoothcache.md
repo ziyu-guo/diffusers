@@ -1,9 +1,9 @@
 # SmoothCache
 
-[SmoothCache]([https://github.com/Roblox/SmoothCache](https://huggingface.co/papers/2411.10510)) is a training-free acceleration technique designed to enhance the performance of Diffusion Transformer (DiT) pipelines. 
+[SmoothCache](https://huggingface.co/papers/2411.10510) is a training-free acceleration technique designed to enhance the performance of Diffusion Transformer (DiT) pipelines. 
 It reduces the need for computationally expensive operations via caching schemes based on layer-wise error analysis. 
 SmoothCache applies to different models and modalities. 
-It also offers plug-and-play integration with [Diffusers DiT Pipeline]([https://github.com/huggingface/diffusers](https://github.com/huggingface/diffusers/blob/main/src/diffusers/pipelines/dit/pipeline_dit.py)), 
+It also offers plug-and-play integration with [Diffusers DiT Pipeline](https://github.com/huggingface/diffusers/blob/main/src/diffusers/pipelines/dit/pipeline_dit.py), 
 
 
 
@@ -16,7 +16,7 @@ pip install dit-smoothcache
 
 ### Usage - Inference
 
-Inspired by [DeepCache](https://raw.githubusercontent.com/horseee/DeepCache), implemented zero-intrusion helper class to control the caching behavior of the pipeline.
+Inspired by [DeepCache](https://raw.githubusercontent.com/horseee/DeepCache), we implemented zero-intrusion helper class to control the caching behavior of the pipeline.
 
 Generally, only a few additional lines needs to be added to the sampler scripts to enable/disable SmoothCache:
 
